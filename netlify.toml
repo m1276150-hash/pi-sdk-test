@@ -1,22 +1,21 @@
 [[CURRENCIES]]
-code="xpaio"
-issuer="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
-name="xpaioe"
-desc="Utility Test token used to purchase STAR, NFTs, game features."
-image="https://xpaio-token.netlify.app/logo.png"
+code = "xpaio"
+issuer = "GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
+name = "xpaioe"
+desc = "Utility Test token used to purchase STAR, NFTs, game features."
+image = "https://xpaio-token.netlify.app/logo.png"
 
 [build]
- 
-  command = "npm run build  && npm run export"
-  publish = "out"
+command = "npm run build && npm run export"
+publish = "out"
 
-  [[plugins]]
-  package = " @netlify/plugin-nextjs"
+[[plugins]]
+package = "@netlify/plugin-nextjs"
 
 [functions]
-  directory = ""
+directory = "netlify/functions"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200
