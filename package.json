@@ -1,21 +1,14 @@
 {
-  "name": "xpaio_token_project",
+  "name": "xpaio",
   "version": "1.0.0",
-  "description": "Stellar Token Issuance Script",
-  "main": "execute_domain.js",
-  "dependencies": {
-    "@stellar/stellar-sdk": "^12.3.0",
-    "keypair": "^1.0.1",
-    "next": "^14.2.35",
-    "node-fetch": "^2.7.0",
-    "pi-sdk": "^0.0.16",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "export": "next export"
+    "build": "next build && next export",
     "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   }
 }
