@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build ",
-    "sexport": "next start"
+    "build": "next build && next export",
+    "start": "next start"
   }
 }

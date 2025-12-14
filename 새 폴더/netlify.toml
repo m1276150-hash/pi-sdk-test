@@ -6,9 +6,9 @@ desc="Utility Test token used to purchase STAR, NFTs, game features."
 image="https://xpaio-token.netlify.app/logo.png"
 
 [build]
- 
-  command = "npm run build && npm run export"
+  base = "xpaio"
   publish = "out"
+  command = "npm run build"
 
 [functions]
   directory = ""
