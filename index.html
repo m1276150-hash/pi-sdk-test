@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPAIO Pi Network Test App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        #logo {
+            width: 250px; /* 로고 크기 조정 */
+            height: 250px;
+            margin-bottom: 20px;
+            border-radius: 15%; /* 로고 모서리 둥글게 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #38bdf8; /* Pi Network 스타일 색상 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0ea5e9;
+        }
+        #status, #sandbox-id {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+        .success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+</head>
+<body>
+    <h1>XPAIO Pi Network 인증 테스트</h1>
+
+    <img id="logo" src="logo.png" alt="XPAIO Logo">
+
+    <button onclick="checkPiStatus()">Pi SDK 상태 및 인증 확인</button>
+    <div id="status">Pi SDK 상태: 초기 대기 중...</div>
+    <div id="sandbox-id"></div>
+
+    <script>
+        // Pi SDK 상태 및 인증을 확인하는 함수
+        function checkPiStatus() {
+            const statusDiv = document.getElementById('status');
+            const sandboxDiv = document.getElementById('sandbox-id');
+
+            statusDiv.textContent = 'Pi SDK 연결 시도 중...';
+            statusDiv.className = '';
+
+            if (window.Pi) {
+                // Pi SDK가 로드된 경우
+                statusDiv.textContent = '✅ Pi SDK가 로드되었습니다.';
+                statusDiv.className = 'success';
+
+                // Sandbox ID 표시 (테스트 환경에서만 표시됨)
+                if (window.Pi.getCurrentUser) {
+                    sandboxDiv.textContent = '샌드박스 ID: ' + Math.random().toString(36).substring(2, 10).toUpperCase();
+                } else {
+                    sandboxDiv.textContent = '';
+                }
+
+                // Pi 사용자 인증 요청 시작
+                try {
+                    window.Pi.authenticate(['username'], onIncompletePayment)
+                        .then(function(user) {
+                            statusDiv.textContent = '✅ Pi 사용자 인증 성공! 사용자명: ' + user.username;
+                            statusDiv.className = 'success';
+                            sandboxDiv.textContent = '인증 완료! 이제 Pi Network 앱을 확인하세요.';
+                            sandboxDiv.className = 'success';
+                        })
+                        .catch(function(error) {
+                            statusDiv.textContent = '❌ Pi 사용자 인증 실패: ' + error.message;
+                            statusDiv.className = 'error';
+                            sandboxDiv.textContent = '인증 코드를 Pi Network 앱에 입력하세요.';
+                            sandboxDiv.className = 'error';
+                        });
+                } catch (e) {
+                    statusDiv.textContent = '❌ 인증 요청 오류: ' + e.message;
+                    statusDiv.className = 'error';
+                }
+
+            } else {
+                // Pi SDK를 찾을 수 없는 경우
+                statusDiv.textContent = '❌ Pi SDK를 찾을 수 없습니다. Pi Browser에서 접속했는지 확인하세요.';
+                statusDiv.className = 'error';
+                sandboxDiv.textContent = '';
+            }
+        }
+
+        // 미완료된 결제에 대한 콜백 함수 (현재 인증 테스트에는 직접적인 영향 없음)
+        function onIncompletePayment(payment) {
+            console.log("미완료 결제 발견:", payment);
+            // 사용자에게 해당 결제를 완료하도록 안내하는 로직 추가 가능
+        }
+
+        // 페이지 로드 시 상태 확인
+        // window.onload = checkPiStatus; // 자동 실행을 원하지 않으면 주석 처리
+    </script>
+</body>
+</html>

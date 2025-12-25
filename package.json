@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "pi-sdk-test",
   "version": "1.0.0",
   "description": "",
@@ -16,3 +17,18 @@
     "express": "^5.2.1"
   }
 }
+=======
+  "name": "xpaio",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
+>>>>>>> aef470641e674e47e1305c285b3e3d88a1219ac1

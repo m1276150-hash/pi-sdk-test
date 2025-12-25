@@ -1,0 +1,30 @@
+# ==============================================================================
+# stellar.toml file for Aibase Token (aibase) on the Stellar Network
+# ==============================================================================
+
+# --- [DOCUMENTATION] ---
+# 웹사이트 및 기업 정보 (Netlify 기본 도메인 사용)
+ORG_NAME="xpaio Project"
+# 🚨 현재 활성화된 Netlify 주소로 변경:
+ORG_URL="https://xpaio-token.netlify.app" 
+ORG_DESCRIPTION="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계의 새로운 기준."
+ORG_OFFICIAL_EMAIL="m1276150@gmail.com"
+
+# --- 도메인 소유권 증명 (유효성 검사) ---
+# 토큰 발행자 계정(GDBT...)의 서명 값
+SIGNING_KEY="ee112a4ff661c1ed19a90f3738b64645ca2db9553c9d2f10f21fd99bea475afcb5166ac10b16ec4abe531e17855cc811ce38a612c521de49ee80cbaadbc2c291"
+
+
+# --- [CURRENCIES] ---
+# 발행한 토큰 (xpaio) 정보
+[[CURRENCIES]]
+code="xpaio"
+issuer="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
+name="xpaio Token"
+desc="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된, 글로벌 디지털 생태계의 새로운 기준을 제시하는 핵심 토큰." 
+# 🚨 이미지 주소도 새로운 Netlify 주소로 변경:
+image="https://xpaio-token.netlify.app/xpaio-logo.png"
+status="live"
+is_asset_authorized=false
+
+# 🔔 참고: 사용자 요청에 따라 예비 발행자 지갑 주소를 노트합니다: 
