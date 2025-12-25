@@ -1,0 +1,9 @@
+[build]
+  # 넷리파이가 파일을 읽기 시작할 실제 위치입니다.
+  publish = "xpaio/public"
+
+[[redirects]]
+  # 모든 접속을 index.html로 연결하여 404를 방지합니다.
+  from = "/*"
+  to = "/index.html"
+  status = 200
