@@ -1,8 +1,20 @@
-[build]
-  publish = "."
-  functions = "netlify/functions"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # 파이 브라우저(socialchain, pinet 등)가 이 사이트를 프레임에 넣도록 허용
+    Content-Security-Policy = "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com https://*.socialchain.app;"
+    
+    # 모든 도메인에서의 데이터 요청 허용 (SDK 연결 필수)
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from = "/tos"
+  to = "/tos.html"
   status = 200
