@@ -1,0 +1,24 @@
+# XPAIO Ecosystem Configuration for Pi Network
+
+[METADATA]
+ORG_NAME="XPAIO Project"
+# 🚨 현재 활성화된 은하수님의 실제 주소로 일치시켰습니다.
+ORG_URL="https://xpaio.netlify.app"
+ORG_DESCRIPTION="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계의 새로운 기준."
+ORG_OFFICIAL_EMAIL="m1276150@gmail.com"
+
+# --- 도메인 소유권 증명 ---
+# 발행자(A)의 공개키를 입력하여 이 도메인이 공식임을 인증합니다.
+SIGNING_KEY="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
+
+[[CURRENCIES]]
+code="xpaio"
+issuer="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
+display_decimals=7
+name="xpaio Token"
+symbol="XPAIO"
+desc="AI 혁신과 파이 네트워크가 만나는 XPAIO 생태계의 유틸리티 토큰."
+# 🚨 로고 파일명을 logo.png로 일치시켜 이미지가 깨지지 않게 했습니다.
+image="https://xpaio.netlify.app/logo.png"
+status="live"
+is_asset_authorized=false
