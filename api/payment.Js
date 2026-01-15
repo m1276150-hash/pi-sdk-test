@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
     const { paymentId } = req.body;
     // 리더님이 제공해주신 Secret Key 반영
-    const PI_API_KEY = "6zyujyo7kwm6i3ae1qrwkyktdzuksafabjc6zpwdjamurqkpe0oy0v7yphnb9mle"; 
+    const PI_API_KEY = "5vzpsblvjk2zbiusbgg4s5t7ogwtzb4dcrcrdaauzhcahrn5cjcnj8pwgwitbtzj"; 
 
     console.log(`[XPAIO 서버] 결제 승인 프로세스 시작: ${paymentId}`);
 

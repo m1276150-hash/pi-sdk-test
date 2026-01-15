@@ -1,25 +1,27 @@
 # ==============================================================================
-# stellar.toml file for XPAIO Token on the Pi Network
+# stellar.toml file for XPAIO Token on the Pi Network (Verified for Step 10)
 # ==============================================================================
 
 [METADATA]
 ORG_NAME="XPAIO Project"
-# 🚨 실제 도메인으로 수정하세요:
-ORG_URL="https://xpaio.com" 
+# ✅ Netlify 주소로 수정됨
+ORG_URL="https://xpaio.netlify.app" 
 ORG_DESCRIPTION="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계의 새로운 기준."
 ORG_OFFICIAL_EMAIL="m1276150@gmail.com"
 
-# --- 도메인 소유권 증명 ---
-SIGNING_KEY="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
+# --- 도메인 소유권 증명 (A지갑 공개키) ---
+# ✅ 리더님의 실제 발행자 주소(GDMHO...)로 수정됨
+SIGNING_KEY="GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR"
 
 [[CURRENCIES]]
-code="xpaio"
-issuer="GCSFHPOHQKWEDUW2YQ3YNVROWHYBGGPVWAZN6CWMLDTVVSLAEBHMF3JG"
-name="xpaio Token"
+code="XPAIO"
+# ✅ 발행자 주소 일치화 완료
+issuer="GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR"
+name="XPAIO Token"
 symbol="XPAIO"
 desc="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 핵심 유틸리티 토큰."
-# 🚨 로고 이미지 주소도 실제 도메인으로 수정하세요:
-image="https://xpaio.com/logo.png"
+# ✅ 이미지 경로 수정
+image="https://xpaio.netlify.app/logo.png" 
 status="live"
 display_decimals=7
 is_asset_authorized=false
