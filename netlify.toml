@@ -1,0 +1,32 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # 파이 브라우저에서 사이트가 차단되지 않도록 허용
+    Content-Security-Policy = "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com https://*.socialchain.app;"
+    # SDK 데이터 요청 허용
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+[[redirects]]
+  # 1. 9단계 도메인 인증용 (최상단 유지)
+  from = "/.well-known/*"
+  to = "/well-known/:splat"
+  status = 200
+
+[[redirects]]
+  # 2. 보안 정책 페이지용
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+  
+[[redirects]]
+  # 3. 10단계 결제 화면 로드용 (마지막 순서)
+  from = "/*"
+  to = "/index.html"
+  status = 200
