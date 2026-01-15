@@ -2,9 +2,10 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "allowJs": true,           // JS 파일 혼용 허용
+    "checkJs": false,          // JS 파일의 엄격한 타입 검사 비활성화 (개발 속도 향상)
     "skipLibCheck": true,
-    "strict": false,
+    "strict": false,           // 10단계 테스트를 위해 엄격한 검사 완화
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -13,8 +14,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]           // 경로 단축 설정 (@/public/logo.png 등)
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts", 
+    "**/*.ts", 
+    "**/*.tsx", 
+    "**/*.js",                 // JS 파일도 포함시켜 관리
+    "**/*.cjs"
+  ],
   "exclude": ["node_modules"]
 }

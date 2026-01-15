@@ -1,7 +1,15 @@
+# 모든 페이지에 적용되는 보안 및 통신 설정
 /*
   Access-Control-Allow-Origin: *
-  Content-Security-Policy: frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com;
+  # 파이 브라우저 내에서 사이트가 정상적으로 표시되도록 허용
+  Content-Security-Policy: frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app;
+  X-Frame-Options: ALLOW-FROM https://*.minepi.com
 
+# 9단계 및 10단계 도메인 인증 파일 설정
 /.well-known/pi.toml
-  Content-Type: application/toml
+  Content-Type: text/plain; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/.well-known/stellar.toml
+  Content-Type: text/plain; charset=utf-8
   Access-Control-Allow-Origin: *

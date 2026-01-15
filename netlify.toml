@@ -1,21 +1,28 @@
+# ==============================================================================
+# Netlify Configuration for XPAIO (Optimized for Pi Browser & Step 10)
+# ==============================================================================
+
 [[headers]]
   for = "/*"
   [headers.values]
-    # 파이 브라우저에서 사이트가 차단되지 않도록 허용
+    # 1. 파이 브라우저 프레임 허용 (10단계 승인 핵심 설정)
     Content-Security-Policy = "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com https://*.socialchain.app;"
-    # SDK 데이터 요청 허용
+    
+    # 2. CORS 허용: SDK 및 API 통신 활성화
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[redirects]]
-  # 1. 9단계 도메인 인증용 (최상단 유지)
+  # 1. 9단계 도메인 인증 및 토큰 정보(stellar.toml) 제공 경로
+  # 이 설정을 통해 /.well-known/stellar.toml 요청이 정상 처리됩니다.
   from = "/.well-known/*"
   to = "/well-known/:splat"
   status = 200
+  force = true
 
 [[redirects]]
-  # 2. 보안 정책 페이지용
+  # 2. 보안 정책 및 약관 페이지 (파이 검토팀 필수 확인 항목)
   from = "/terms"
   to = "/terms.html"
   status = 200
@@ -24,9 +31,10 @@
   from = "/privacy"
   to = "/privacy.html"
   status = 200
-  
+
 [[redirects]]
-  # 3. 10단계 결제 화면 로드용 (마지막 순서)
+  # 3. 싱글 페이지 애플리케이션(SPA) 라우팅 설정
+  # 모든 요청을 index.html로 보내되, 실제 파일이 있는 경우는 제외합니다.
   from = "/*"
   to = "/index.html"
   status = 200

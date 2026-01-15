@@ -1,12 +1,13 @@
 const StellarSDK = require("@stellar/stellar-sdk");
+const SDK = StellarSDK.default || StellarSDK; // 최신 라이브러리 호환성 대응
 
 // 1. 파이 테스트넷 서버 설정
-const server = new StellarSDK.Horizon.Server("https://api.testnet.minepi.com");
+const server = new SDK.Horizon.Server("https://api.testnet.minepi.com");
 const NETWORK_PASSPHRASE = "Pi Testnet"; 
 
-// 2. [수정 완료] 리더님이 주신 A지갑(발행자) 정보
+// 2. [수정 완료] 리더님의 A지갑(발행자) 정보
 const issuerSecret = "SAR6QHU2KGE2Q4TJGV3B3DNVPJDB2EDIAWSZUAQ3ZGB5KVWEYVJ66RWA"; 
-const issuerKeypair = StellarSDK.Keypair.fromSecret(issuerSecret);
+const issuerKeypair = SDK.Keypair.fromSecret(issuerSecret);
 
 async function completeStep10() {
     try {
@@ -19,16 +20,16 @@ async function completeStep10() {
         // 발행자(A지갑) 계정 로드
         const issuerAccount = await server.loadAccount(issuerKeypair.publicKey());
 
-        // 3. 트랜잭션 빌드: 홈 도메인 설정 (Netlify 주소 연결)
-        const transaction = new StellarSDK.TransactionBuilder(issuerAccount, {
+        // 3. 트랜잭션 빌드: 홈 도메인 설정 (정식 도메인 연결)
+        const transaction = new SDK.TransactionBuilder(issuerAccount, {
             fee: baseFee,
             networkPassphrase: NETWORK_PASSPHRASE,
             timebounds: await server.fetchTimebounds(90),
         })
-        .addOperation(StellarSDK.Operation.setOptions({ 
-            // 🚨 Netlify 배포 후 받은 실제 주소로 수정하세요 (예: xpaio-token.netlify.app)
+        .addOperation(SDK.Operation.setOptions({ 
+            // ✅ 파이 개발자 포털과 일치하도록 정식 도메인으로 수정
             // 반드시 https:// 를 제외하고 입력해야 합니다.
-            homeDomain: "xpaio-token.netlify.app" 
+            homeDomain: "www.xpaio.com" 
         }))
         .setTimeout(180) 
         .build();
@@ -37,12 +38,17 @@ async function completeStep10() {
         transaction.sign(issuerKeypair); 
         const result = await server.submitTransaction(transaction);
 
-        console.log("✅ 성공! A지갑에 Netlify 도메인이 등록되었습니다.");
+        console.log("✅ 성공! A지갑에 www.xpaio.com 도메인이 등록되었습니다.");
         console.log("🔗 트랜잭션 확인:", result._links.transaction.href);
         console.log("\n--- 이제 파이 브라우저에서 10단계가 승인됩니다! ---");
 
     } catch (error) {
-        console.error("❌ 등록 실패:", error.response?.data?.extras?.result_codes || error);
+        console.error("❌ 등록 실패:");
+        if (error.response && error.response.data && error.response.data.extras) {
+            console.error(JSON.stringify(error.response.data.extras.result_codes));
+        } else {
+            console.error(error.message);
+        }
     }
 }
 

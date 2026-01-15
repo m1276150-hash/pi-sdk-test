@@ -1,1 +1,5 @@
-/* /index.html 200
+# 1. 도메인 및 토큰 인증 경로는 리다이렉트에서 제외 (인증 성공을 위해 최상단 배치)
+/.well-known/* /.well-known/:splat  200
+
+# 2. 모든 요청을 index.html로 연결 (파이 브라우저 새로고침 에러 방지)
+/* /index.html  200

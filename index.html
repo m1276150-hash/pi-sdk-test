@@ -51,12 +51,11 @@
 
     async function initPi() {
       try {
-        // 1. SDK 초기화 (10단계 검토를 위해 sandbox: true 유지)
+        // SDK 초기화 (www.xpaio.com 환경 준수)
         await Pi.init({ version: "2.0", sandbox: true });
 
-        // 2. 사용자 인증
         const auth = await Pi.authenticate(["username"], (payment) => {
-          console.log("결제 진행 중 알림:", payment);
+          console.log("결제 진행 상태:", payment);
         });
 
         document.getElementById("loading-area").style.display = "none";
@@ -70,7 +69,6 @@
       }
     }
 
-    // 3. 결제창 호출 함수
     async function openPiPayment() {
       try {
         const payment = await Pi.createPayment({
@@ -78,9 +76,21 @@
           memo: "XPAIO 10단계 테스트 결제",
           metadata: { orderId: "XPAIO_VERIFY_10" },
         }, {
-          onReadyForServerApproval: (paymentId) => {
-            console.log("서버 승인 대기 단계 진입. ID:", paymentId);
-            // 10단계 검토는 이 창이 뜨는 것만으로도 큰 진전입니다.
+          onReadyForServerApproval: async (paymentId) => {
+            console.log("서버 승인 요청 중... ID:", paymentId);
+            
+            // 리더님의 Render 서버 주소로 결제 승인 신호 발송
+            try {
+              const response = await fetch('https://xpaio-server.onrender.com/xpaio-token/app/adi/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId })
+              });
+              const result = await response.json();
+              console.log("서버 승인 결과:", result);
+            } catch (error) {
+              console.error("서버 승인 통신 실패:", error);
+            }
           },
           onReadyForServerCompletion: (paymentId, txid) => {
             alert("결제 성공! TXID: " + txid);
