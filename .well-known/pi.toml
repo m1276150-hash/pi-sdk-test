@@ -4,7 +4,6 @@
 
 [METADATA]
 ORG_NAME="XPAIO Project"
-# ✅ 정식 도메인으로 수정 (파이 시스템 일치화)
 ORG_URL="https://www.xpaio.com" 
 ORG_DESCRIPTION="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계의 새로운 기준."
 ORG_OFFICIAL_EMAIL="m1276150@gmail.com"
@@ -18,8 +17,10 @@ issuer="GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR"
 name="XPAIO Token"
 symbol="XPAIO"
 desc="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 핵심 유틸리티 토큰."
-# ✅ 로고 이미지 경로도 정식 도메인으로 수정
 image="https://www.xpaio.com/logo.png" 
 status="live"
 display_decimals=7
 is_asset_authorized=false
+
+# 🚀 [추가] 지갑 앱에 공급량 숫자를 띄우기 위한 핵심 코드
+fixed_number = 50000000

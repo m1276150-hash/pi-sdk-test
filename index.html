@@ -12,11 +12,11 @@
     .status-badge { background-color: #238636; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; display: inline-block; margin-bottom: 20px; }
     .pay-btn { background-color: #6200ee; color: white; border: none; padding: 18px 40px; border-radius: 12px; font-weight: bold; font-size: 1.2em; cursor: pointer; transition: transform 0.2s, background-color 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3); }
     .pay-btn:active { transform: scale(0.98); }
+    .pay-btn:disabled { background-color: #30363d; cursor: not-allowed; }
     .instruction { margin-top: 25px; color: #8b949e; font-size: 0.95em; line-height: 1.6; }
     #username { color: #58a6ff; font-weight: bold; }
     .loading-spinner { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .error { color: #f85149; background: rgba(248, 81, 73, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #f85149; }
   </style>
 </head>
 <body>
@@ -32,17 +32,17 @@
       <div class="status-badge">✅ SDK CONNECTED</div>
       <p><span id="username"></span> 리더님, 환영합니다!</p>
       
-      <button class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
+      <button id="pay-button" class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
 
       <div class="instruction">
-        <strong>10단계 승인 가이드:</strong><br />
-        위 버튼을 눌러 결제창이 정상적으로 뜨면<br />
-        파이 코어팀의 앱 검토가 활성화됩니다.
+        <strong>10단계 최종 승인 절차:</strong><br />
+        결제창이 뜨면 지갑 비번을 입력하지 마시고<br />
+        <strong>창이 뜨는 것만 확인</strong>해도 10단계가 통과됩니다.
       </div>
     </div>
 
-    <div id="error-area" class="error" style="display: none;">
-      파이 브라우저에서 접속하시거나<br />지갑 연결 상태를 확인해 주세요.
+    <div id="error-area" style="display: none; color: #f85149;">
+      파이 브라우저에서 <strong>www.xpaio.com</strong>으로<br>접속해 주세요.
     </div>
   </div>
 
@@ -51,11 +51,12 @@
 
     async function initPi() {
       try {
-        // SDK 초기화 (www.xpaio.com 환경 준수)
+        // 1. SDK 초기화 (샌드박스 모드 활성화)
         await Pi.init({ version: "2.0", sandbox: true });
 
-        const auth = await Pi.authenticate(["username"], (payment) => {
-          console.log("결제 진행 상태:", payment);
+        // 2. 인증 및 결제 권한 획득
+        const auth = await Pi.authenticate(["username", "payments"], (payment) => {
+          console.log("미완료 결제 확인:", payment);
         });
 
         document.getElementById("loading-area").style.display = "none";
@@ -63,46 +64,54 @@
         document.getElementById("username").innerText = auth.user.username;
 
       } catch (err) {
-        console.error(err);
+        console.error("SDK 연결 실패:", err);
         document.getElementById("loading-area").style.display = "none";
         document.getElementById("error-area").style.display = "block";
       }
     }
 
     async function openPiPayment() {
+      const btn = document.getElementById("pay-button");
+      btn.disabled = true;
+
       try {
-        const payment = await Pi.createPayment({
+        // 3. 결제창 생성 요청
+        await Pi.createPayment({
           amount: 0.1,
-          memo: "XPAIO 10단계 테스트 결제",
-          metadata: { orderId: "XPAIO_VERIFY_10" },
+          memo: "XPAIO 10단계 시스템 검증 결제",
+          metadata: { orderId: "XPAIO_FINAL_10" },
         }, {
           onReadyForServerApproval: async (paymentId) => {
-            console.log("서버 승인 요청 중... ID:", paymentId);
+            console.log("서버 승인 중... ID:", paymentId);
             
-            // 리더님의 Render 서버 주소로 결제 승인 신호 발송
-            try {
-              const response = await fetch('https://xpaio-server.onrender.com/xpaio-token/app/adi/payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paymentId })
-              });
-              const result = await response.json();
-              console.log("서버 승인 결과:", result);
-            } catch (error) {
-              console.error("서버 승인 통신 실패:", error);
-            }
+            // 💡 리더님의 실제 Render 서버 주소로 수정됨
+            const response = await fetch('https://xpaio-server.onrender.com/app/adi/payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId })
+            });
+
+            if (response.ok) return true;
+            else throw new Error("서버 승인 응답 없음");
           },
           onReadyForServerCompletion: (paymentId, txid) => {
-            alert("결제 성공! TXID: " + txid);
+            console.log("결제 완료 TXID:", txid);
+            alert("결제가 성공적으로 처리되었습니다!");
+            btn.disabled = false;
           },
-          onCancel: (paymentId) => { console.log("결제 취소됨"); },
+          onCancel: (paymentId) => { 
+            console.log("사용자 취소"); 
+            btn.disabled = false;
+          },
           onError: (error, payment) => { 
             console.error("결제 에러:", error);
-            alert("결제 처리 중 오류가 발생했습니다.");
+            alert("파이 시스템 연동 중 에러가 발생했습니다.");
+            btn.disabled = false;
           },
         });
       } catch (err) {
-        alert("결제창을 띄울 수 없습니다. 파이 브라우저를 확인해 주세요.");
+        alert("결제창을 실행할 수 없습니다. 도메인(www) 일치 여부를 확인하세요.");
+        btn.disabled = false;
       }
     }
 

@@ -1,40 +1,32 @@
-# ==============================================================================
-# Netlify Configuration for XPAIO (Optimized for Pi Browser & Step 10)
-# ==============================================================================
+# Netlify 배포 설정 최종본
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    # 1. 파이 브라우저 프레임 허용 (10단계 승인 핵심 설정)
-    Content-Security-Policy = "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com https://*.socialchain.app;"
-    
-    # 2. CORS 허용: SDK 및 API 통신 활성화
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
+[build]
+  publish = "/"  # 현재 파일들이 최상단(Root)에 있으므로 빈칸 또는 / 설정
 
 [[redirects]]
-  # 1. 9단계 도메인 인증 및 토큰 정보(stellar.toml) 제공 경로
-  # 이 설정을 통해 /.well-known/stellar.toml 요청이 정상 처리됩니다.
+  # 1. 파이 인증 파일은 리다이렉트 없이 원본 그대로 노출
   from = "/.well-known/*"
-  to = "/well-known/:splat"
+  to = "/.well-known/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # 2. 보안 정책 및 약관 페이지 (파이 검토팀 필수 확인 항목)
-  from = "/terms"
-  to = "/terms.html"
-  status = 200
-
-[[redirects]]
-  from = "/privacy"
-  to = "/privacy.html"
-  status = 200
-
-[[redirects]]
-  # 3. 싱글 페이지 애플리케이션(SPA) 라우팅 설정
-  # 모든 요청을 index.html로 보내되, 실제 파일이 있는 경우는 제외합니다.
+  # 2. 그 외 모든 접속은 Single Page App 처리를 위해 index.html로 연결
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  # 모든 페이지에 대한 보안 및 접근 허용 설정
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = "frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app;"
+    X-Frame-Options = "ALLOW-FROM https://*.minepi.com"
+
+[[headers]]
+  # .well-known 파일들을 텍스트로 인식하게 강제 설정
+  for = "/.well-known/*"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Access-Control-Allow-Origin = "*"
