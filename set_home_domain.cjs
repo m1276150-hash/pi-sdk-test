@@ -3,9 +3,10 @@ const SDK = StellarSDK.default || StellarSDK;
 
 // 1. 파이 테스트넷 연결 설정
 const server = new SDK.Horizon.Server("https://api.testnet.minepi.com");
-const NETWORK_PASSPHRASE = "Pi Testnet";
+// 💡 중요 수정: 파이 테스트넷 공식 식별자로 일치
+const NETWORK_PASSPHRASE = "Pi Network Testnet"; 
 
-// 2. [A지갑] 발행자 정보 (보안을 위해 비밀키 관리에 유의하세요)
+// 2. [A지갑] 발행자 정보
 const ISSUER_SECRET = 'SAR6QHU2KGE2Q4TJGV3B3DNVPJDB2EDIAWSZUAQ3ZGB5KVWEYVJ66RWA';
 const issuerKeypair = SDK.Keypair.fromSecret(ISSUER_SECRET);
 
@@ -30,6 +31,7 @@ async function setHomeDomain() {
             timebounds: await server.fetchTimebounds(180),
         })
         .addOperation(SDK.Operation.setOptions({ 
+            // ✅ www를 포함한 도메인을 블록체인 지갑 데이터에 박아넣습니다.
             homeDomain: HOME_DOMAIN 
         }))
         .build();
@@ -44,7 +46,7 @@ async function setHomeDomain() {
 
     } catch (e) {
         console.error("\n❌ 등록 실패:");
-        if (e.response && e.response.data && e.response.data.extras) {
+        if (e.response?.data?.extras?.result_codes) {
             console.error(JSON.stringify(e.response.data.extras.result_codes));
         } else {
             console.error(e.message);

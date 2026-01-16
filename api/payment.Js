@@ -1,10 +1,14 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-    // 1. CORS 설정: www.xpaio.com에서 오는 요청만 허용하여 보안 강화
-    res.setHeader('Access-Control-Allow-Origin', 'https://www.xpaio.com');
+    // 1. CORS 설정 강화: 파이 브라우저의 다양한 접속 환경 허용
+    // www가 붙은 주소와 pinet 주소 모두를 대응하기 위해 origin을 유연하게 처리합니다.
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('xpaio.com') || origin.includes('minepi.com'))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     // OPTIONS 요청(Preflight) 처리
     if (req.method === 'OPTIONS') {
@@ -17,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     const { paymentId } = req.body;
-    // 리더님의 Secret API Key (보안상 환경변수 권장하나 일단 코드로 유지)
+    // 리더님의 Secret API Key (보안상 환경변수 권장)
     const PI_API_KEY = "5vzpsblvjk2zbiusbgg4s5t7ogwtzb4dcrcrdaauzhcahrn5cjcnj8pwgwitbtzj"; 
 
     if (!paymentId) {
@@ -28,6 +32,7 @@ export default async function handler(req, res) {
 
     try {
         // 3. 파이 서버에 결제 승인(Approve) 요청
+        // 중요: 샌드박스 테스트 시에는 api.minepi.com 주소를 그대로 사용합니다.
         await axios.post(
             `https://api.minepi.com/v2/payments/${paymentId}/approve`,
             {},

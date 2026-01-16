@@ -7,24 +7,30 @@ const NETWORK_PASSPHRASE = "Pi Network Testnet";
 const distributorSecret = "SBP3BYOH4X3ZNAX72MUMIKF7HNFJVH7WPPNDFSLMNAU4KZD4WJJWG6D4";
 const distributorKeypair = SDK.Keypair.fromSecret(distributorSecret);
 
+// 💡 자산 정의 추가
+const XPAIO = new SDK.Asset("XPAIO", "GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR");
+const NativePi = SDK.Asset.native();
+
 async function addLiquidity() {
     try {
-        console.log("🌊 XPAIO 유동성 공급 강제 실행 (수수료 보강)...");
+        console.log("🌊 XPAIO 유동성 공급 강제 실행 (수수료 및 자산 자동 계산)...");
         const account = await server.loadAccount(distributorKeypair.publicKey());
 
+        // 💡 풀 ID 자동 계산 방식 권장
+        const lpAsset = SDK.LiquidityPoolAsset.fromAssetPair(XPAIO, NativePi);
+
         const transaction = new SDK.TransactionBuilder(account, {
-            // 💡 수수료를 1,000,000(1 Pi)으로 높여서 최우선 처리합니다.
             fee: "1000000", 
             networkPassphrase: NETWORK_PASSPHRASE,
-            timebounds: await server.fetchTimebounds(180)
         })
         .addOperation(SDK.Operation.liquidityPoolDeposit({
-            liquidityPoolId: '6cc52f6762391696b9991206161405e3230a8c2215c2763f350ec2f47f2f116a',
+            liquidityPoolId: lpAsset.getLiquidityPoolId(), // 자동 계산된 ID 사용
             maxAmountA: "1000.0000000", 
             maxAmountB: "10.0000000",   
             minPrice: "0.0000001",
             maxPrice: "1000000",
         }))
+        .setTimeout(180) // fetchTimebounds 대신 간단한 타임아웃 권장
         .build();
 
         transaction.sign(distributorKeypair);

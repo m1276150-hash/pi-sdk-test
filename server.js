@@ -7,13 +7,20 @@ import { fileURLToPath } from 'url';
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// 1. 보안 설정: 리더님의 정식 도메인에서 오는 요청만 허용
+// 1. 보안 설정: 파이 브라우저 및 정식 도메인 허용
 app.use(cors({
-  origin: ["https://www.xpaio.com", "http://localhost:3000"]
+  origin: [
+    "https://www.xpaio.com", 
+    "https://xpaio.com", 
+    "https://sandbox.minepi.com", // 샌드박스 테스트 필수 허용
+    "http://localhost:3000"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
-// 정적 파일(index.html 등) 제공 경로
+// 정적 파일 제공 (필요 시)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Pi API 설정
@@ -22,20 +29,25 @@ const PI_API_KEY = "5vzpsblvjk2zbiusbgg4s5t7ogwtzb4dcrcrdaauzhcahrn5cjcnj8pwgwit
 
 /**
  * [핵심] 결제 승인 및 완료 처리 (10단계 필수 로직)
- * 리더님의 index.html에서 호출하는 엔드포인트입니다.
+ * 중요: index.html의 fetch 주소와 반드시 일치해야 합니다.
  */
-app.post("/xpaio-token/app/adi/payment", async (req, res) => {
+app.post("/payment", async (req, res) => {
   const { paymentId } = req.body;
+  
+  if (!paymentId) {
+    return res.status(400).json({ success: false, error: "paymentId가 없습니다." });
+  }
+
   console.log(`[XPAIO] 결제 프로세스 시작: ${paymentId}`);
 
   try {
-    // 1단계: 승인(Approve) - 파이 서버에 결제를 승인한다고 알림
+    // 1단계: 승인(Approve)
     await axios.post(`${PI_API_URL}/payments/${paymentId}/approve`, {}, {
       headers: { Authorization: `Key ${PI_API_KEY}` }
     });
     console.log(`[1/2] 승인 완료: ${paymentId}`);
 
-    // 2단계: 완료(Complete) - 결제를 최종적으로 마무리
+    // 2단계: 완료(Complete)
     const response = await axios.post(`${PI_API_URL}/payments/${paymentId}/complete`, {}, {
       headers: { Authorization: `Key ${PI_API_KEY}` }
     });
@@ -44,29 +56,29 @@ app.post("/xpaio-token/app/adi/payment", async (req, res) => {
     res.json({ success: true, txid: response.data.transaction?.txid });
 
   } catch (e) {
-    console.error("❌ 결제 처리 에러:", e.response?.data || e.message);
-    res.status(500).json({ success: false, error: e.response?.data || "서버 통신 오류" });
+    const errorDetail = e.response?.data || e.message;
+    console.error("❌ 결제 처리 에러:", errorDetail);
+    res.status(500).json({ success: false, error: errorDetail });
   }
 });
 
-/**
- * 사용자 정보 확인 API
- */
-app.post("/me", async (req, res) => {
+// 사용자 정보 확인 API
+app.get("/me", async (req, res) => {
   try {
-    const response = await axios.post(`${PI_API_URL}/me`, {}, {
+    const response = await axios.get(`${PI_API_URL}/me`, {
       headers: { Authorization: `Key ${PI_API_KEY}` }
     });
     res.json(response.data);
   } catch (e) {
-    res.status(500).json(e.response?.data || e);
+    res.status(500).json(e.response?.data || e.message);
   }
 });
 
-// Render 배포 호환 포트 설정
+// Render 배포 포트 설정
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`================================================`);
-  console.log(`🚀 XPAIO 통합 서버 가동: http://localhost:${PORT}`);
+  console.log(`🚀 XPAIO 통합 서버 가동 완료`);
+  console.log(`🔗 Endpoint: https://xpaio-server.onrender.com/payment`);
   console.log(`================================================`);
 });

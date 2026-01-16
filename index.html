@@ -51,12 +51,13 @@
 
     async function initPi() {
       try {
-        // 1. SDK 초기화 (샌드박스 모드 활성화)
+        // 1. SDK 초기화 (샌드박스 모드 강제 적용)
         await Pi.init({ version: "2.0", sandbox: true });
 
-        // 2. 인증 및 결제 권한 획득
+        // 2. 인증 및 미결제 건 처리
         const auth = await Pi.authenticate(["username", "payments"], (payment) => {
           console.log("미완료 결제 확인:", payment);
+          // 미완료 결제가 있다면 서버에 알리는 로직을 추가할 수 있습니다.
         });
 
         document.getElementById("loading-area").style.display = "none";
@@ -82,20 +83,20 @@
           metadata: { orderId: "XPAIO_FINAL_10" },
         }, {
           onReadyForServerApproval: async (paymentId) => {
-            console.log("서버 승인 중... ID:", paymentId);
+            console.log("서버 승인 요청 중... ID:", paymentId);
             
-            // 💡 리더님의 실제 Render 서버 주소로 수정됨
-            const response = await fetch('https://xpaio-server.onrender.com/app/adi/payment', {
+            // 💡 경로 수정: Render 서버의 payment 엔드포인트에 맞춰 정렬
+            const response = await fetch('https://xpaio-server.onrender.com/payment', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ paymentId })
             });
 
             if (response.ok) return true;
-            else throw new Error("서버 승인 응답 없음");
+            else throw new Error("서버 승인 응답 실패");
           },
           onReadyForServerCompletion: (paymentId, txid) => {
-            console.log("결제 완료 TXID:", txid);
+            console.log("최종 완료 TXID:", txid);
             alert("결제가 성공적으로 처리되었습니다!");
             btn.disabled = false;
           },
@@ -105,12 +106,13 @@
           },
           onError: (error, payment) => { 
             console.error("결제 에러:", error);
-            alert("파이 시스템 연동 중 에러가 발생했습니다.");
+            alert("결제창 실행 중 에러가 발생했습니다.");
             btn.disabled = false;
           },
         });
       } catch (err) {
-        alert("결제창을 실행할 수 없습니다. 도메인(www) 일치 여부를 확인하세요.");
+        console.error("결제 요청 실패:", err);
+        alert("결제창을 실행할 수 없습니다. 파이 브라우저 환경을 확인하세요.");
         btn.disabled = false;
       }
     }
