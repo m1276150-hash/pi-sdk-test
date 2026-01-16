@@ -1,0 +1,19 @@
+# XPAIO Project - Pi Network Domain Verification
+
+[METADATA]
+ORG_NAME = "XPAIO Project"
+ORG_URL = "https://www.xpaio.com"
+ORG_DESCRIPTION = "AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계"
+ORG_OFFICIAL_EMAIL = "m1276150@gmail.com"
+
+SIGNING_KEY = "GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR"
+
+[[CURRENCIES]]
+code = "XPAIO"
+issuer = "GDMHOZS5A6QZFI55WMGLZRAJMYUC5WEEMCEYY6JS5WVTTSGK4XLZQUVR"
+display_decimals = 7
+name = "XPAIO Token"
+symbol = "XPAIO"
+desc = "AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 핵심 유틸리티 토큰"
+image = "https://www.xpaio.com/logo.png"
+fixed_number = 50000000
