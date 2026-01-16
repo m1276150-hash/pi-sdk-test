@@ -1,7 +1,14 @@
 {
-  "short_name": "XPAIO",
   "name": "XPAIO Ecosystem",
+  "short_name": "XPAIO",
   "description": "AI 혁신과 파이 네트워크가 결합된 글로벌 디지털 생태계",
+  "lang": "ko-KR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#6200ee",
+  "background_color": "#0d1117",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -19,11 +26,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "/",
-  "display": "standalone",
-  "theme_color": "#0d1117",
-  "background_color": "#0d1117",
-  "lang": "ko-KR",
-  "scope": "/"
+  ]
 }
