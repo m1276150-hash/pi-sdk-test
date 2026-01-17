@@ -3,40 +3,65 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XPAIO Sandbox Finder</title>
+    <title>XPAIO - Pi Payment Test</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         body { background-color: #0d1117; color: #fff; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .code-box { background: #000; color: #39ff14; padding: 30px; font-size: 2em; border: 2px solid #58a6ff; border-radius: 15px; margin: 20px; word-break: break-all; }
+        .pay-btn { background-color: #6200ee; color: white; border: none; padding: 20px 40px; border-radius: 12px; font-weight: bold; font-size: 1.5em; cursor: pointer; margin-top: 30px; }
+        #status { color: #58a6ff; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <h1>XPAIO 보안 검증</h1>
-    <div id="status">파이 네트워크 연결 시도 중...</div>
-    <div id="result" class="code-box">대기 중...</div>
-    <p style="color: #8b949e;">"Authentication failed" 뒤에 나오는 7자리 코드를 찾으세요.</p>
+    <h1>XPAIO 결제 시스템</h1>
+    <div id="status">파이 네트워크와 연결 중...</div>
+    
+    <button id="pay-button" class="pay-btn" onclick="startPayment()" style="display:none;">
+        테스트 결제 시도 (0.1 Pi)
+    </button>
 
     <script>
-        async function getSandboxCode() {
-            const status = document.getElementById("status");
-            const result = document.getElementById("result");
+        const Pi = window.Pi;
+
+        async function initPi() {
             try {
-                // 서버 주소 없이 SDK만 초기화합니다
-                await window.Pi.init({ version: "2.0", sandbox: true });
-                status.innerText = "인증창 유도 중...";
+                // 샌드박스 모드를 통해 실전 도메인 인증을 시도합니다
+                await Pi.init({ version: "2.0", sandbox: true });
+                const auth = await Pi.authenticate(['payments', 'username'], (payment) => {
+                    console.log("미완료 결제 발견:", payment);
+                });
                 
-                // 결제 콜백 없이 단순 인증만 시도합니다
-                await window.Pi.authenticate(['username'], (payment) => {});
-                
-                result.innerText = "이미 인증됨";
+                document.getElementById("status").innerText = auth.user.username + " 리더님, 연결되었습니다!";
+                document.getElementById("pay-button").style.display = "inline-block";
             } catch (err) {
-                // 여기서 7자리 코드가 뿜어져 나옵니다
-                console.error(err);
-                result.innerText = err.message || JSON.stringify(err);
-                status.innerText = "코드를 확인하세요!";
+                // 만약 여기서 코드가 나오면 포털에 입력하고, 안 나오면 바로 결제 시도가 가능합니다
+                document.getElementById("status").innerText = "인증 대기 중: " + err.message;
             }
         }
-        window.onload = getSandboxCode;
+
+        async function startPayment() {
+            try {
+                await Pi.createPayment({
+                    amount: 0.1,
+                    memo: "XPAIO 10단계 최종 검증",
+                    metadata: { orderId: "XPAIO_FINAL_01" },
+                }, {
+                    onReadyForServerApproval: async (paymentId) => {
+                        // 서버가 없으므로 자체적으로 승인 신호(true)를 보냅니다
+                        console.log("결제 승인 단계:", paymentId);
+                        return true; 
+                    },
+                    onReadyForServerCompletion: async (paymentId, txid) => {
+                        // 결제가 블록체인에 기록되면 성공 알림을 띄웁니다
+                        alert("결제 성공! txid: " + txid);
+                    },
+                    onCancel: () => alert("결제를 취소하셨습니다."),
+                    onError: (err) => alert("결제 에러: " + err.message)
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        window.onload = initPi;
     </script>
 </body>
 </html>
