@@ -19,7 +19,7 @@
         <div id="status">파이 네트워크와 보안 연결 중...</div>
         
         <button id="pay-button" class="pay-btn" onclick="startPayment()" style="display:none;">
-            테스트 결제 (0.1 Pi)
+            테스트 결제 (0.1 Pi) 시도
         </button>
     </div>
 
@@ -28,13 +28,12 @@
 
         async function initPi() {
             try {
-                // [리더님 수정 반영] Production 환경 에러 방지를 위해 sandbox 설정을 유연하게 가져갑니다.
-                // 현재 브라우저가 production 환경이므로 false로 시도하되, 에러 시 대응합니다.
-                await Pi.init({ version: "2.0", sandbox: false });
+                // [리더님 필독] 샌드박스 코드 입력 단계에서는 반드시 sandbox: true여야 연결이 뚫립니다.
+                await Pi.init({ version: "2.0", sandbox: true });
                 
-                // 인증 시도: payments 권한을 반드시 포함해야 결제창이 뜹니다.
+                // 파이오니어 인증
                 const auth = await Pi.authenticate(['payments', 'username'], (payment) => {
-                    console.log("미완료된 결제건 처리 중:", payment);
+                    console.log("미완료 결제건 발견:", payment);
                 });
                 
                 document.getElementById("status").innerText = auth.user.username + " 리더님, 인증 성공!";
@@ -42,34 +41,30 @@
                 
             } catch (err) {
                 console.error("인증 실패:", err);
-                // 만약 여전히 샌드박스 코드를 요구하면 화면에 표시합니다.
-                document.getElementById("status").innerText = "연결 대기 중: " + (err.message || "샌드박스 인증이 필요합니다.");
+                document.getElementById("status").innerText = "연결 대기 중: " + (err.message || "샌드박스 코드를 다시 확인하세요.");
             }
         }
 
         async function startPayment() {
             try {
-                // 실제 지갑 창을 띄우는 핵심 로직
                 await Pi.createPayment({
                     amount: 0.1,
                     memo: "XPAIO 10단계 최종 검증 결제",
                     metadata: { orderId: "XPAIO_" + Date.now() },
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
-                        console.log("승인 단계 접속:", paymentId);
-                        // 서버가 없는 환경을 위해 즉시 true 반환
-                        return true; 
+                        console.log("승인 요청:", paymentId);
+                        return true; // 프론트엔드 즉시 승인
                     },
                     onReadyForServerCompletion: async (paymentId, txid) => {
-                        console.log("결제 완료됨:", txid);
-                        alert("축하합니다! 결제가 완료되었습니다.\n트랜잭션 ID: " + txid);
-                        document.getElementById("status").innerText = "결제 완료! 10단계 최종 통과";
+                        alert("결제 성공! 트랜잭션 ID: " + txid);
+                        document.getElementById("status").innerText = "결제 완료! 10단계를 통과하셨습니다.";
                     },
                     onCancel: () => alert("결제를 취소하셨습니다."),
-                    onError: (err) => alert("결제 중 오류: " + err.message)
+                    onError: (err) => alert("결제 에러: " + err.message)
                 });
             } catch (err) {
-                console.error("결제 호출 에러:", err);
+                console.error("결제 프로세스 실패:", err);
             }
         }
 
