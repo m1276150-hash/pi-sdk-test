@@ -3,113 +3,42 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>XPAIO - Pi Network Ecosystem</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#6200ee">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <title>XPAIO - Sandbox Reset</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .container { padding: 40px; border-radius: 20px; background-color: #161b22; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; }
-        h1 { color: #ffffff; font-size: 1.8em; margin-bottom: 10px; }
-        .status-badge { background-color: #238636; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; display: inline-block; margin-bottom: 20px; }
-        .pay-btn { background-color: #6200ee; color: white; border: none; padding: 18px 40px; border-radius: 12px; font-weight: bold; font-size: 1.2em; cursor: pointer; transition: transform 0.2s, background-color 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3); }
-        .instruction { margin-top: 25px; color: #8b949e; font-size: 0.95em; line-height: 1.6; }
-        #username { color: #58a6ff; font-weight: bold; }
-        .code-box { background:#000; padding:15px; border-radius:10px; border:1px solid #58a6ff; margin-top:20px; }
-        .loading-spinner { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { background-color: #0d1117; color: #fff; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { padding: 30px; border-radius: 15px; background: #161b22; border: 2px solid #58a6ff; width: 90%; max-width: 400px; }
+        .code-display { background: #000; color: #39ff14; padding: 20px; font-size: 1.5em; font-family: monospace; border-radius: 10px; margin: 20px 0; word-break: break-all; border: 1px dashed #39ff14; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>XPAIO Ecosystem</h1>
-        <div id="loading-area">
-            <div class="loading-spinner"></div>
-            <p>파이 네트워크 보안 연결 시도 중...</p>
-        </div>
+        <h2>XPAIO 보안 코드 확인</h2>
+        <p style="color: #8b949e;">아래 코드가 샌드박스용 보안 코드입니다.</p>
         
-        <div id="auth-area" style="display: none;">
-            <div class="status-badge">✅ SDK CONNECTED</div>
-            <p><span id="username"></span> 리더님, 환영합니다!</p>
-            <button id="pay-button" class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
-        </div>
-
-        <div id="error-area" style="display: none;">
-            <p style="color:#f85149; font-weight:bold;">샌드박스 인증이 필요합니다.</p>
-            <div class="code-box">
-                <p style="color:#8b949e; font-size:0.8em; margin-bottom:5px;">개발자 포털에 입력할 코드:</p>
-                <code id="sandbox-code" style="color:#58a6ff; font-size:1.4em; font-family:monospace; letter-spacing:2px;">연결 중...</code>
-            </div>
-            <p style="font-size:0.85em; color:#8b949e; margin-top:15px;">위 코드를 복사하여 개발자 포털<br>Sandbox 칸에 입력하고 저장하세요.</p>
-        </div>
+        <div id="code-result" class="code-display">SDK 연결 중...</div>
+        
+        <p style="font-size: 0.8em; color: #58a6ff;">이 코드를 개발자 포털 Sandbox 칸에 입력하세요.</p>
+        <button onclick="location.reload()" style="background:#58a6ff; color:#fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">코드 재발급(새로고침)</button>
     </div>
 
     <script>
-        const Pi = window.Pi;
-        const SERVER_URL = 'https://xpaio-server.onrender.com/payment';
-
-        async function onIncompletePaymentFound(payment) {
-            return fetch(`${SERVER_URL}/complete`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction.txid })
-            });
-        }
-
-        async function initPi() {
+        async function forceGetSandboxCode() {
+            const display = document.getElementById("code-result");
             try {
-                // 샌드박스 코드를 뿜어내기 위해 true로 설정합니다.
-                await Pi.init({ version: "2.0", sandbox: true });
-                const auth = await Pi.authenticate(['payments', 'username'], onIncompletePaymentFound);
-                
-                document.getElementById("loading-area").style.display = "none";
-                document.getElementById("auth-area").style.display = "block";
-                document.getElementById("username").innerText = auth.user.username;
+                // 기존 세션을 무시하고 새로 인증을 시도하여 코드를 유도합니다.
+                await window.Pi.init({ version: "2.0", sandbox: true });
+                const auth = await window.Pi.authenticate(['username'], (pay) => {});
+                display.innerText = "이미 인증됨 (정상)";
+                display.style.color = "#58a6ff";
             } catch (err) {
-                console.error("SDK Error:", err);
-                document.getElementById("loading-area").style.display = "none";
-                document.getElementById("error-area").style.display = "block";
-                // 에러 메시지(샌드박스 코드)를 화면에 뿜어줍니다.
-                document.getElementById("sandbox-code").innerText = err.message || err;
+                // SDK가 뿜어내는 에러 메시지 전체를 화면에 표시합니다.
+                console.log("Captured Error:", err);
+                // 안내 문구가 아닌 '진짜 코드'만 뿜어내도록 설정
+                display.innerText = err.message || JSON.stringify(err);
             }
         }
-
-        async function openPiPayment() {
-            const btn = document.getElementById("pay-button");
-            btn.disabled = true;
-            try {
-                await Pi.createPayment({
-                    amount: 0.1,
-                    memo: "XPAIO 10단계 최종 검증",
-                    metadata: { orderId: "XPAIO_FINAL_TEST" },
-                }, {
-                    onReadyForServerApproval: async (paymentId) => {
-                        const res = await fetch(`${SERVER_URL}/approve`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId })
-                        });
-                        return res.ok;
-                    },
-                    onReadyForServerCompletion: async (paymentId, txid) => {
-                        await fetch(`${SERVER_URL}/complete`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId, txid })
-                        });
-                        alert("결제 성공!");
-                        btn.disabled = false;
-                    },
-                    onCancel: () => { btn.disabled = false; },
-                    onError: (err) => { btn.disabled = false; }
-                });
-            } catch (err) {
-                btn.disabled = false;
-            }
-        }
-        window.onload = initPi;
+        window.onload = forceGetSandboxCode;
     </script>
 </body>
 </html>
