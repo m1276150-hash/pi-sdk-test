@@ -1,55 +1,22 @@
-[build]
-  publish = "."  # 현재 파일들이 루트 폴더에 있으므로 점(.)으로 설정
-
-# 1. 리다이렉트 설정
-[[redirects]]
-  # 파이 인증용 .well-known 폴더는 있는 그대로 보여줌
-  from = "/.well-known/*"
-  to = "/.well-known/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  # PWA 및 싱글 페이지 앱(SPA) 구동을 위해 모든 요청을 index.html로 유도
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# 2. 보안 및 SDK 통신용 헤더 설정
 [[headers]]
   for = "/*"
   [headers.values]
-    # 파이 브라우저 내에서 프레임 차단을 막기 위한 필수 설정
     Access-Control-Allow-Origin = "*"
     X-Frame-Options = "ALLOW-FROM https://*.minepi.com"
-    
-    # [핵심] 콘텐츠 보안 정책 (CSP) 통합본
-    # - 파이 SDK 연결, 렌더 서버 통신, PWA 매니페스트 허용을 모두 포함
-    Content-Security-Policy = """
-      default-src 'self' https://*.minepi.com https://*.pinet.com; 
-      script-src 'self' 'unsafe-inline' https://sdk.minepi.com; 
-      frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; 
-      style-src 'self' 'unsafe-inline'; 
-      img-src 'self' data: https:; 
-      connect-src 'self' https://*.minepi.com https://xpaio-server.onrender.com; 
-      manifest-src 'self';
-    """
-
-# 3. 특정 파일별 전용 헤더
-[[headers]]
-  for = "/.well-known/*"
-  [headers.values]
-    Content-Type = "text/plain; charset=utf-8"
-    Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com https://xpaio-server.onrender.com; manifest-src 'self';"
 
 [[headers]]
   for = "/manifest.json"
   [headers.values]
     Content-Type = "application/manifest+json; charset=utf-8"
-    Access-Control-Allow-Origin = "*"
 
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Service-Worker-Allowed = "/"
     Cache-Control = "no-cache"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

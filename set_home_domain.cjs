@@ -1,52 +1,39 @@
-const StellarSDK = require('@stellar/stellar-sdk');
-const SDK = StellarSDK.default || StellarSDK;
+// 최신 Stellar SDK 방식에 맞게 수정
+const StellarSdk = require('stellar-sdk');
 
-// 1. 파이 테스트넷 연결 설정
-const server = new SDK.Horizon.Server("https://api.testnet.minepi.com");
-// 💡 중요 수정: 파이 테스트넷 공식 식별자로 일치
-const NETWORK_PASSPHRASE = "Pi Network Testnet"; 
+// Horizon 서버 설정 (최신 방식)
+const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
 
-// 2. [A지갑] 발행자 정보
-const ISSUER_SECRET = 'SAR6QHU2KGE2Q4TJGV3B3DNVPJDB2EDIAWSZUAQ3ZGB5KVWEYVJ66RWA';
-const issuerKeypair = SDK.Keypair.fromSecret(ISSUER_SECRET);
-
-// 3. 파이 개발자 포털과 100% 일치해야 하는 도메인 주소
-const HOME_DOMAIN = "www.xpaio.com"; 
+// [주의] 발행자 지갑(Issuer)의 S로 시작하는 비밀구절을 정확히 입력하세요.
+const SECRET_KEY = 'SAR6QHU2KGE2Q4TJGV3B3DNVPJDB2EDIAWSZUAQ3ZGB5KVWEYVJ66RWA'; 
+const sourceKeypair = StellarSdk.Keypair.fromSecret(SECRET_KEY.trim());
 
 async function setHomeDomain() {
     try {
-        console.log(`⏳ 파이 블록체인에 홈 도메인(${HOME_DOMAIN}) 등록 중...`);
+        console.log('⏳ 파이 블록체인에 홈 도메인(www.xpaio.com) 등록 시도 중...');
         
-        // 최신 계정 정보 로드
-        const issuerAccount = await server.loadAccount(issuerKeypair.publicKey());
+        const account = await server.loadAccount(sourceKeypair.publicKey());
         
-        // 최신 네트워크 수수료 조회
-        const ledgers = await server.ledgers().order("desc").limit(1).call();
-        const currentFee = ledgers.records[0].base_fee_in_stroops;
-
-        // 4. 트랜잭션 빌드 (SetOptions 오퍼레이션 사용)
-        const transaction = new SDK.TransactionBuilder(issuerAccount, {
-            fee: currentFee,
-            networkPassphrase: NETWORK_PASSPHRASE,
-            timebounds: await server.fetchTimebounds(180),
+        const transaction = new StellarSdk.TransactionBuilder(account, {
+            fee: StellarSdk.BASE_FEE,
+            networkPassphrase: StellarSdk.Networks.TESTNET,
         })
-        .addOperation(SDK.Operation.setOptions({ 
-            // ✅ www를 포함한 도메인을 블록체인 지갑 데이터에 박아넣습니다.
-            homeDomain: HOME_DOMAIN 
+        .addOperation(StellarSdk.Operation.setOptions({
+            homeDomain: 'www.xpaio.com' 
         }))
+        .setTimeout(30)
         .build();
 
-        // 5. 서명 및 제출
-        transaction.sign(issuerKeypair);
+        transaction.sign(sourceKeypair);
         const result = await server.submitTransaction(transaction);
-
-        console.log(`\n🎉 [성공] ${HOME_DOMAIN} 등록 완료!`);
-        console.log(`🔗 확인 링크: ${result._links.transaction.href}`);
-        console.log("\n이제 파이 시스템이 이 도메인을 공식 주소로 인식합니다.");
-
+        
+        console.log('✅ [성공] www.xpaio.com 등기 완료!');
+        console.log('트랜잭션 해시:', result.hash);
+        console.log('이제 파이 브라우저에서 무한로딩이 사라질 것입니다!');
+        
     } catch (e) {
-        console.error("\n❌ 등록 실패:");
-        if (e.response?.data?.extras?.result_codes) {
+        console.error('❌ 실패 이유:');
+        if (e.response && e.response.data && e.response.data.extras) {
             console.error(JSON.stringify(e.response.data.extras.result_codes));
         } else {
             console.error(e.message);
