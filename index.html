@@ -1,66 +1,78 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XPAIO - Pi Payment Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPAIO - Official Pi App</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        body { background-color: #0d1117; color: #fff; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .pay-btn { background-color: #6200ee; color: white; border: none; padding: 20px 40px; border-radius: 12px; font-weight: bold; font-size: 1.5em; cursor: pointer; margin-top: 30px; }
-        #status { color: #58a6ff; margin-bottom: 20px; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #161b22; padding: 2.5rem; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid #30363d; }
+        .pay-btn { background-color: #6200ee; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 25px; transition: transform 0.2s, background 0.3s; }
+        .pay-btn:hover { background-color: #3700b3; transform: scale(1.05); }
+        #status { margin-top: 20px; font-size: 1rem; color: #58a6ff; font-weight: 500; }
     </style>
 </head>
 <body>
-    <h1>XPAIO 결제 시스템</h1>
-    <div id="status">파이 네트워크와 연결 중...</div>
-    
-    <button id="pay-button" class="pay-btn" onclick="startPayment()" style="display:none;">
-        테스트 결제 시도 (0.1 Pi)
-    </button>
+    <div class="container">
+        <h1 style="color: #f0f6fc;">XPAIO Ecosystem</h1>
+        <div id="status">파이 네트워크와 보안 연결 중...</div>
+        
+        <button id="pay-button" class="pay-btn" onclick="startPayment()" style="display:none;">
+            테스트 결제 (0.1 Pi)
+        </button>
+    </div>
 
     <script>
         const Pi = window.Pi;
 
         async function initPi() {
             try {
-                // 샌드박스 모드를 통해 실전 도메인 인증을 시도합니다
-                await Pi.init({ version: "2.0", sandbox: true });
+                // [리더님 수정 반영] Production 환경 에러 방지를 위해 sandbox 설정을 유연하게 가져갑니다.
+                // 현재 브라우저가 production 환경이므로 false로 시도하되, 에러 시 대응합니다.
+                await Pi.init({ version: "2.0", sandbox: false });
+                
+                // 인증 시도: payments 권한을 반드시 포함해야 결제창이 뜹니다.
                 const auth = await Pi.authenticate(['payments', 'username'], (payment) => {
-                    console.log("미완료 결제 발견:", payment);
+                    console.log("미완료된 결제건 처리 중:", payment);
                 });
                 
-                document.getElementById("status").innerText = auth.user.username + " 리더님, 연결되었습니다!";
+                document.getElementById("status").innerText = auth.user.username + " 리더님, 인증 성공!";
                 document.getElementById("pay-button").style.display = "inline-block";
+                
             } catch (err) {
-                // 만약 여기서 코드가 나오면 포털에 입력하고, 안 나오면 바로 결제 시도가 가능합니다
-                document.getElementById("status").innerText = "인증 대기 중: " + err.message;
+                console.error("인증 실패:", err);
+                // 만약 여전히 샌드박스 코드를 요구하면 화면에 표시합니다.
+                document.getElementById("status").innerText = "연결 대기 중: " + (err.message || "샌드박스 인증이 필요합니다.");
             }
         }
 
         async function startPayment() {
             try {
+                // 실제 지갑 창을 띄우는 핵심 로직
                 await Pi.createPayment({
                     amount: 0.1,
-                    memo: "XPAIO 10단계 최종 검증",
-                    metadata: { orderId: "XPAIO_FINAL_01" },
+                    memo: "XPAIO 10단계 최종 검증 결제",
+                    metadata: { orderId: "XPAIO_" + Date.now() },
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
-                        // 서버가 없으므로 자체적으로 승인 신호(true)를 보냅니다
-                        console.log("결제 승인 단계:", paymentId);
+                        console.log("승인 단계 접속:", paymentId);
+                        // 서버가 없는 환경을 위해 즉시 true 반환
                         return true; 
                     },
                     onReadyForServerCompletion: async (paymentId, txid) => {
-                        // 결제가 블록체인에 기록되면 성공 알림을 띄웁니다
-                        alert("결제 성공! txid: " + txid);
+                        console.log("결제 완료됨:", txid);
+                        alert("축하합니다! 결제가 완료되었습니다.\n트랜잭션 ID: " + txid);
+                        document.getElementById("status").innerText = "결제 완료! 10단계 최종 통과";
                     },
                     onCancel: () => alert("결제를 취소하셨습니다."),
-                    onError: (err) => alert("결제 에러: " + err.message)
+                    onError: (err) => alert("결제 중 오류: " + err.message)
                 });
             } catch (err) {
-                console.error(err);
+                console.error("결제 호출 에러:", err);
             }
         }
+
         window.onload = initPi;
     </script>
 </body>
