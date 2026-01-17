@@ -33,8 +33,8 @@
             <p><span id="username"></span> 리더님, 환영합니다!</p>
             <button id="pay-button" class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
             <div class="instruction">
-                <strong>10단계 승인 절차:</strong><br />
-                결제 기록 확인 후 최종 승인 단계로 넘어갑니다.
+                <strong>10단계 검증 진행 중:</strong><br />
+                결제창이 정상적으로 뜨면 10단계가 즉시 통과됩니다.
             </div>
         </div>
         <div id="error-area" style="display: none; color: #f85149;">
@@ -44,12 +44,6 @@
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Reg error:', err));
-            });
-        }
-
         const Pi = window.Pi;
         const SERVER_URL = 'https://xpaio-server.onrender.com/payment';
 
@@ -63,7 +57,7 @@
 
         async function initPi() {
             try {
-                // 10단계 통과 전까지는 sandbox: true로 유지해야 합니다.
+                // 블록체인 기록이 있으므로 포털 설정에 맞춰 sandbox: true로 활성화합니다.
                 await Pi.init({ version: "2.0", sandbox: true });
                 const auth = await Pi.authenticate(['payments', 'username'], onIncompletePaymentFound);
                 
@@ -83,8 +77,8 @@
             try {
                 await Pi.createPayment({
                     amount: 0.1,
-                    memo: "XPAIO 10단계 시스템 검증",
-                    metadata: { orderId: "XPAIO_FINAL_10" },
+                    memo: "XPAIO 10단계 최종 검증",
+                    metadata: { orderId: "XPAIO_FINAL_TEST" },
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
                         const res = await fetch(`${SERVER_URL}/approve`, {
