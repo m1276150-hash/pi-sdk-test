@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XPAIO Sandbox Code Finder</title>
+    <title>XPAIO Sandbox Finder</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        body { background-color: #0d1117; color: #fff; font-family: sans-serif; text-align: center; padding: 50px 20px; }
-        .code-display { background: #000; color: #39ff14; padding: 30px; font-size: 2.5em; font-family: monospace; border: 2px solid #58a6ff; border-radius: 15px; margin: 30px 0; }
-        .hint { color: #8b949e; font-size: 0.9em; line-height: 1.6; }
+        body { background-color: #0d1117; color: #fff; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .code-box { background: #000; color: #39ff14; padding: 30px; font-size: 2em; border: 2px solid #58a6ff; border-radius: 15px; margin: 20px; word-break: break-all; }
     </style>
 </head>
 <body>
-    <h1>XPAIO 보안 코드 확인</h1>
-    <div id="result" class="code-display">연결 시도 중...</div>
-    <p class="hint">아래 7자리 코드가 나오면 개발자 포털의<br><strong>Sandbox Code</strong> 칸에 입력하고 저장하세요.</p>
+    <h1>XPAIO 보안 검증</h1>
+    <div id="status">파이 네트워크 연결 시도 중...</div>
+    <div id="result" class="code-box">대기 중...</div>
+    <p style="color: #8b949e;">"Authentication failed" 뒤에 나오는 7자리 코드를 찾으세요.</p>
 
     <script>
-        async function getRealCode() {
-            const display = document.getElementById("result");
+        async function getSandboxCode() {
+            const status = document.getElementById("status");
+            const result = document.getElementById("result");
             try {
-                // 1. 샌드박스 모드 강제 활성화
+                // 서버 주소 없이 SDK만 초기화합니다
                 await window.Pi.init({ version: "2.0", sandbox: true });
+                status.innerText = "인증창 유도 중...";
                 
-                // 2. 인증을 시도하여 샌드박스 코드를 유도
-                await window.Pi.authenticate(['username'], (pay) => {});
+                // 결제 콜백 없이 단순 인증만 시도합니다
+                await window.Pi.authenticate(['username'], (payment) => {});
                 
-                display.innerText = "인증 완료";
+                result.innerText = "이미 인증됨";
             } catch (err) {
-                console.log("Full Error:", err);
-                
-                // 3. 에러 메시지 중에서 7자리 코드만 찾아내거나 전체 에러를 뿜습니다.
-                // 만약 'Authentication failed.'만 나온다면, SDK가 아직 주소 인식을 못 하는 상태입니다.
-                display.innerText = err.message || JSON.stringify(err);
+                // 여기서 7자리 코드가 뿜어져 나옵니다
+                console.error(err);
+                result.innerText = err.message || JSON.stringify(err);
+                status.innerText = "코드를 확인하세요!";
             }
         }
-        window.onload = getRealCode;
+        window.onload = getSandboxCode;
     </script>
 </body>
 </html>
