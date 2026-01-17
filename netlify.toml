@@ -3,11 +3,10 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-    # 파이 브라우저 내에서 앱이 정상적으로 프레임에 담기도록 허용
     X-Frame-Options = "ALLOW-FROM https://*.minepi.com"
     Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com https://xpaio-server.onrender.com; manifest-src 'self';"
 
-# 2. 파이 블록체인 인증 파일 (stellar.toml / pi.toml) 전용 헤더
+# 2. 파이 블록체인 인증 파일 전용 헤더
 [[headers]]
   for = "/.well-known/*"
   [headers.values]
@@ -28,8 +27,14 @@
     Service-Worker-Allowed = "/"
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# 5. SPA 리다이렉트 규칙 (404 방지 및 무한 로딩 해결)
+# 5. 수정된 리다이렉트 규칙 (루트 접속 시 index.html 보장)
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false  # 기존 파일을 찾지 못할 때만 index.html로 보냄
