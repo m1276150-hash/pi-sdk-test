@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>XPAIO - Pi Network Ecosystem</title>
-    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6200ee">
     <link rel="apple-touch-icon" href="/logo.png">
-    
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
         .container { padding: 40px; border-radius: 20px; background-color: #161b22; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; }
@@ -38,17 +34,16 @@
             <button id="pay-button" class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
             <div class="instruction">
                 <strong>10단계 승인 절차:</strong><br />
-                결제창이 뜨는 것만 확인해도 10단계가 통과됩니다.
+                결제 기록 확인 후 최종 승인 단계로 넘어갑니다.
             </div>
         </div>
         <div id="error-area" style="display: none; color: #f85149;">
             인증 오류가 발생했습니다.<br>
-            파이 브라우저에서 <strong>www.xpaio.com</strong>으로 접속 중인지 확인해 주세요.
+            파이 개발자 포털의 <strong>Sandbox 모드</strong>가 켜져 있는지 확인해 주세요.
         </div>
     </div>
 
     <script>
-        // 서비스 워커 등록
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Reg error:', err));
@@ -56,11 +51,9 @@
         }
 
         const Pi = window.Pi;
-        // 리더님의 렌더 서버 주소
         const SERVER_URL = 'https://xpaio-server.onrender.com/payment';
 
         async function onIncompletePaymentFound(payment) {
-            console.log("미결제 건 발견:", payment.identifier);
             return fetch(`${SERVER_URL}/complete`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -70,8 +63,8 @@
 
         async function initPi() {
             try {
-                // 4. 리더님이 직접 도메인 등기를 마쳤으므로 sandbox: false가 맞습니다.
-                await Pi.init({ version: "2.0", sandbox: false });
+                // 10단계 통과 전까지는 sandbox: true로 유지해야 합니다.
+                await Pi.init({ version: "2.0", sandbox: true });
                 const auth = await Pi.authenticate(['payments', 'username'], onIncompletePaymentFound);
                 
                 document.getElementById("loading-area").style.display = "none";
@@ -111,10 +104,7 @@
                         btn.disabled = false;
                     },
                     onCancel: () => { btn.disabled = false; },
-                    onError: (err) => { 
-                        console.error(err);
-                        btn.disabled = false; 
-                    }
+                    onError: (err) => { btn.disabled = false; }
                 });
             } catch (err) {
                 btn.disabled = false;
