@@ -1,16 +1,12 @@
-# 모든 페이지에 적용되는 보안 및 통신 설정
 /*
   Access-Control-Allow-Origin: *
-  # CSP 설정: 줄바꿈 없이 한 줄로 길게 작성해야 정확히 인식됩니다.
+  X-Frame-Options: ALLOW-FROM https://sandbox.minepi.com https://minepi.com
   Content-Security-Policy: frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app;
-  X-Frame-Options: ALLOW-FROM https://*.minepi.com
 
-# 9단계 및 10단계 도메인 인증 파일 설정
-# 파일 경로 앞에 공백이 없어야 하며, 설정값은 들여쓰기를 해야 합니다.
-/.well-known/pi.toml
-  Content-Type: text/plain; charset=utf-8
+/.well-known/*
   Access-Control-Allow-Origin: *
+  Content-Type: text/plain; charset=utf-8
 
-/.well-known/stellar.toml
-  Content-Type: text/plain; charset=utf-8
+/manifest.json
   Access-Control-Allow-Origin: *
+  Content-Type: application/manifest+json; charset=utf-8

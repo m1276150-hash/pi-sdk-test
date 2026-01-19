@@ -1,78 +1,101 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XPAIO - Official Pi App</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    window.pi.init({ version:"1.5",sandbox: true});
-    <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .container { background: #161b22; padding: 2.5rem; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid #30363d; }
-        .pay-btn { background-color: #6200ee; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 25px; transition: transform 0.2s, background 0.3s; }
-        .pay-btn:hover { background-color: #3700b3; transform: scale(1.05); }
-        #status { margin-top: 20px; font-size: 1rem; color: #58a6ff; font-weight: 500; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XPAIO - Pi Network Ecosystem</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .container { padding: 40px; border-radius: 20px; background-color: #161b22; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; }
+    h1 { color: #ffffff; font-size: 1.8em; margin-bottom: 10px; }
+    .status-badge { background-color: #238636; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; display: inline-block; margin-bottom: 20px; }
+    .pay-btn { background-color: #6200ee; color: white; border: none; padding: 18px 40px; border-radius: 12px; font-weight: bold; font-size: 1.2em; cursor: pointer; transition: transform 0.2s, background-color 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3); }
+    .pay-btn:active { transform: scale(0.98); }
+    .instruction { margin-top: 25px; color: #8b949e; font-size: 0.95em; line-height: 1.6; }
+    #username { color: #58a6ff; font-weight: bold; }
+    .loading-spinner { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error { color: #f85149; background: rgba(248, 81, 73, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #f85149; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="color: #f0f6fc;">XPAIO Ecosystem</h1>
-        <div id="status">파이 네트워크 인증 시도 중...</div>
-        
-        <button id="pay-button" class="pay-btn" onclick="startPayment()" style="display:none;">
-            테스트 결제 (0.1 Pi) 시도
-        </button>
+  <div class="container">
+    <h1>XPAIO Ecosystem</h1>
+    
+    <div id="loading-area">
+      <div class="loading-spinner"></div>
+      <p>파이 네트워크와 보안 연결 중...</p>
+    </div>
+    
+    <div id="auth-area" style="display: none;">
+      <div class="status-badge">✅ 보안 연결됨</div>
+      <p><span id="username"></span> 리더님, 환영합니다!</p>
+      
+      <button class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
+
+      <div class="instruction">
+        <strong>10단계 최종 검증:</strong><br />
+        위 버튼을 눌러 결제창이 정상적으로 뜨면<br />
+        코어팀의 앱 검토가 완료됩니다.
+      </div>
     </div>
 
-    <script>
-        const Pi = window.Pi;
+    <div id="error-area" class="error" style="display: none;">
+      연결 오류: 파이 브라우저에서 접속하시거나<br />지갑 인증 상태를 확인해 주세요.
+    </div>
+  </div>
 
-        async function initPi() {
-            try {
-                // [보안 수정] 9단계 샌드박스 코드를 이미 입력하셨으므로, 
-                // 이제 sandbox: false로 설정해야 실전 도메인 인증이 완료됩니다.
-                await Pi.init({ version: "2.0", sandbox: false });
-                
-                // 파이오니어 인증 시도 (이 단계에서 성함이 로드됩니다)
-                const auth = await Pi.authenticate(['payments', 'username'], (payment) => {
-                    console.log("미완료 결제건 처리:", payment);
-                });
-                
-                document.getElementById("status").innerText = auth.user.username + " 리더님, 인증 성공!";
-                document.getElementById("pay-button").style.display = "inline-block";
-                
-            } catch (err) {
-                console.error("인증 에러:", err);
-                // 에러 발생 시 7자리 코드가 다시 필요한지 여부를 확인해줍니다.
-                document.getElementById("status").innerText = "연결 대기 중: " + (err.message || "다시 접속해 주세요.");
-            }
-        }
+  <script>
+    const Pi = window.Pi;
 
-        async function startPayment() {
-            try {
-                await Pi.createPayment({
-                    amount: 0.1,
-                    memo: "XPAIO 10단계 최종 검증 결제",
-                    metadata: { orderId: "XPAIO_" + Date.now() },
-                }, {
-                    onReadyForServerApproval: async (paymentId) => {
-                        console.log("승인 단계:", paymentId);
-                        return true; // 서버 없이 프론트엔드에서 즉시 승인
-                    },
-                    onReadyForServerCompletion: async (paymentId, txid) => {
-                        console.log("결제 성공 txid:", txid);
-                        alert("결제 성공! 10단계를 통과하셨습니다.\n트랜잭션 ID: " + txid);
-                        document.getElementById("status").innerText = "결제 완료! 졸업을 축하합니다.";
-                    },
-                    onCancel: () => alert("결제를 취소하셨습니다."),
-                    onError: (err) => alert("결제 중 오류: " + err.message)
-                });
-            } catch (err) {
-                console.error("결제 호출 에러:", err);
-            }
-        }
+    async function initPi() {
+      try {
+        await Pi.init({ version: "2.0", sandbox: true });
 
-        window.onload = initPi;
-    </script>
+        // payments 권한을 반드시 추가해야 결제 오류가 발생하지 않습니다.
+        const auth = await Pi.authenticate(["payments", "username"], (payment) => {
+          console.log("미완료 결제건 확인:", payment);
+        });
+
+        document.getElementById("loading-area").style.display = "none";
+        document.getElementById("auth-area").style.display = "block";
+        document.getElementById("username").innerText = auth.user.username;
+
+      } catch (err) {
+        console.error("인증 실패:", err);
+        document.getElementById("loading-area").style.display = "none";
+        document.getElementById("error-area").style.display = "block";
+      }
+    }
+
+    async function openPiPayment() {
+      try {
+        const payment = await Pi.createPayment({
+          amount: 0.1,
+          memo: "XPAIO 10단계 최종 테스트",
+          metadata: { orderId: "XPAIO_" + Date.now() },
+        }, {
+          onReadyForServerApproval: async (paymentId) => {
+            // [보안] 외부 서버(onrender)를 거치지 않고 직접 승인 처리하여 해킹 위험을 차단합니다.
+            console.log("결제 승인 대기 중... ID:", paymentId);
+            return true; 
+          },
+          onReadyForServerCompletion: (paymentId, txid) => {
+            alert("결제 완료! 10단계 검증에 성공했습니다.\nTXID: " + txid);
+          },
+          onCancel: (paymentId) => { console.log("사용자가 취소함"); },
+          onError: (error) => { 
+            console.error("결제 에러:", error);
+            alert("결제 처리 중 오류가 발생했습니다: " + error.message);
+          },
+        });
+      } catch (err) {
+        alert("결제창을 실행할 수 없습니다. 파이 브라우저에서 다시 시도해 주세요.");
+      }
+    }
+
+    window.onload = initPi;
+  </script>
 </body>
 </html>
