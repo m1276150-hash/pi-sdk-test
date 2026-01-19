@@ -17,16 +17,15 @@ async function setHomeDomain() {
     const ledgers = await server.ledgers().order("desc").limit(1).call();
     const currentFee = ledgers.records[0].base_fee_in_stroops;
 
-    console.log("2. 홈 도메인(xpaio.com) 설정 트랜잭션 빌드 중...");
+    console.log("2. 홈 도메인(xpaio-token.netlify.app) 설정 트랜잭션 빌드 중...");
     const tx = new TransactionBuilder(account, {
       fee: currentFee, 
-      // 💡 중요 수정: 파이 테스트넷 공식 식별자로 일치
       networkPassphrase: "Pi Network Testnet" 
     })
       .addOperation(
         Operation.setOptions({
-          // ✅ 파이 개발자 포털 9단계에 적힌 주소와 100% 일치
-          homeDomain: "xpaio.com" 
+          // ✅ [수정] 대시보드 주소와 100% 일치하도록 변경 (https:// 제외)
+          homeDomain: "xpaio-token.netlify.app"
         })
       )
       .setTimeout(180) 

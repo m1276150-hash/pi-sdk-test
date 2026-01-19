@@ -10,23 +10,23 @@ const sourceKeypair = StellarSdk.Keypair.fromSecret(SECRET_KEY.trim());
 async function setHomeDomain() {
     try {
         console.log('⏳ 발행자 지갑 상태 확인 중...');
-        // 지갑 정보를 서버에서 가져옵니다.
         const account = await server.loadAccount(sourceKeypair.publicKey());
-        console.log('✅ 지갑 확인 완료! 등기를 시작합니다.');
+        console.log('✅ 지갑 확인 완료! 블록체인 등기를 시작합니다.');
 
         const transaction = new StellarSdk.TransactionBuilder(account, {
             fee: StellarSdk.BASE_FEE,
-            networkPassphrase: StellarSdk.Networks.TESTNET, // 테스트넷 네트워크로 강제 설정
+            networkPassphrase: StellarSdk.Networks.TESTNET,
         })
         .addOperation(StellarSdk.Operation.setOptions({
-            homeDomain: 'www.xpaio.com' // 리더님의 도메인
+            // [수정] 현재 사용 중인 Netlify 주소로 변경 (프로토콜 https:// 제외)
+            homeDomain: 'xpaio-token.netlify.app'
         }))
         .setTimeout(30)
         .build();
 
         transaction.sign(sourceKeypair);
         const result = await server.submitTransaction(transaction);
-        console.log('✅ [대성공] www.xpaio.com 등기가 블록체인에 완료되었습니다!');
+        console.log('✅ [대성공] xpaio-token.netlify.app 등기가 블록체인에 완료되었습니다!');
         console.log('트랜잭션 해시:', result.hash);
 
     } catch (e) {

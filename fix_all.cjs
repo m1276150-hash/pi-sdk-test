@@ -15,6 +15,8 @@ async function fix() {
         const personalAccount = await server.loadAccount(personalKeypair.publicKey());
         console.log('✅ 개인 지갑 연결 성공 (잔액 있음)');
 
+        // 주의: 발행자 지갑이 이미 활성화되어 있다면 이 단계는 오류(op_already_exists)가 날 수 있습니다.
+        // 그 경우 바로 2단계로 넘어가시면 됩니다.
         const tx1 = new StellarSdk.TransactionBuilder(personalAccount, {
             fee: StellarSdk.BASE_FEE,
             networkPassphrase: StellarSdk.Networks.TESTNET,
@@ -29,25 +31,27 @@ async function fix() {
         await server.submitTransaction(tx1);
         console.log('✅ 1단계 성공: 발행자 지갑이 활성화되었습니다.');
 
-        console.log('⏳ 2단계: 발행자 지갑으로 홈 도메인 등기 중...');
+        console.log('⏳ 2단계: 발행자 지갑으로 새 홈 도메인 등기 중...');
         const issuerAccount = await server.loadAccount(ISSUER_ADDR);
         const tx2 = new StellarSdk.TransactionBuilder(issuerAccount, {
             fee: StellarSdk.BASE_FEE,
             networkPassphrase: StellarSdk.Networks.TESTNET,
         })
         .addOperation(StellarSdk.Operation.setOptions({
-            homeDomain: 'www.xpaio.com'
+            // [수정] 통일된 Netlify 주소로 변경 (https:// 제외)
+            homeDomain: 'xpaio-token.netlify.app'
         }))
         .setTimeout(30).build();
 
         tx2.sign(issuerKeypair);
         await server.submitTransaction(tx2);
-        console.log('✅ 2단계 성공: www.xpaio.com 등기 완료!');
+        console.log('✅ 2단계 성공: xpaio-token.netlify.app 등기 완료!');
 
     } catch (e) {
         console.error('❌ 실패 상세 정보:');
         if (e.response && e.response.data) {
-            console.error(JSON.stringify(e.response.data, null, 2));
+            // 이미 활성화된 지갑일 경우 op_already_exists 메시지가 뜰 수 있습니다.
+            console.error(JSON.stringify(e.response.data.extras?.result_codes || e.response.data, null, 2));
         } else {
             console.error(e.message);
         }

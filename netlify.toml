@@ -3,9 +3,8 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-    X-Frame-Options = "ALLOW-FROM https://*.minepi.com"
-    # [수정] connect-src에 루트 도메인 https://xpaio.com 추가 및 불필요한 서버 삭제
-    Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com https://xpaio.com; manifest-src 'self';"
+    # [수정] 정식 도메인 대신 실제 사용 중인 Netlify 주소를 허용 목록에 추가합니다.
+    Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com https://xpaio-token.netlify.app; manifest-src 'self';"
 
 # 2. 파이 블록체인 인증 파일 전용 헤더 (번역기 개입 방지 및 텍스트 인식 강화)
 [[headers]]
@@ -13,7 +12,6 @@
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
     Access-Control-Allow-Origin = "*"
-    # 브라우저가 이 파일을 문서로 오해하지 않도록 강제 설정
     X-Content-Type-Options = "nosniff"
 
 # 3. PWA 매니페스트 설정
@@ -30,7 +28,7 @@
     Service-Worker-Allowed = "/"
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# 5. 리다이렉트 규칙 (xpaio.com 접속 시 index.html 보장)
+# 5. 리다이렉트 규칙 (모든 요청을 index.html로 연결하여 SPA 구조 보장)
 [[redirects]]
   from = "/*"
   to = "/index.html"

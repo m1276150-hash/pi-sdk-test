@@ -1,21 +1,18 @@
 {
-  "name": "xpaio-server",
+  "name": "xpaio-token",
   "version": "1.0.0",
-  "description": "XPAIO Payment Approval Server for Pi Network Step 10",
-  "main": "payment.js",
+  "description": "XPAIO Project for Pi Network Step 10 (Netlify Functions)",
+  "main": "api/payment.js",
   "type": "module",
   "dependencies": {
     "@stellar/stellar-sdk": "^13.0.0",
     "axios": "^1.6.0",
-    "cors": "^2.8.5",
     "dotenv": "^16.6.1",
-    "express": "^4.22.1",
     "pi-backend": "^0.1.3",
     "stellar-sdk": "^13.3.0"
   },
   "scripts": {
-    "start": "node payment.js",
-    "dev": "nodemon payment.js"
+    "build": "echo 'No build step required'"
   },
   "engines": {
     "node": ">=18.x"

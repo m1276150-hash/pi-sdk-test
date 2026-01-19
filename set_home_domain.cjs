@@ -10,7 +10,8 @@ const sourceKeypair = StellarSdk.Keypair.fromSecret(SECRET_KEY.trim());
 
 async function setHomeDomain() {
     try {
-        console.log('⏳ 파이 블록체인에 홈 도메인(www.xpaio.com) 등록 시도 중...');
+        // [수정] 로그 메시지 변경
+        console.log('⏳ 파이 블록체인에 홈 도메인(xpaio-token.netlify.app) 등록 시도 중...');
         
         const account = await server.loadAccount(sourceKeypair.publicKey());
         
@@ -19,7 +20,8 @@ async function setHomeDomain() {
             networkPassphrase: StellarSdk.Networks.TESTNET,
         })
         .addOperation(StellarSdk.Operation.setOptions({
-            homeDomain: 'xpaio.com' 
+            // [핵심 수정] 실제 사용 중인 Netlify 주소로 변경 (https:// 제외)
+            homeDomain: 'xpaio-token.netlify.app'
         }))
         .setTimeout(30)
         .build();
@@ -27,9 +29,10 @@ async function setHomeDomain() {
         transaction.sign(sourceKeypair);
         const result = await server.submitTransaction(transaction);
         
-        console.log('✅ [성공] www.xpaio.com 등기 완료!');
+        // [수정] 성공 메시지 변경
+        console.log('✅ [성공] xpaio-token.netlify.app 등기 완료!');
         console.log('트랜잭션 해시:', result.hash);
-        console.log('이제 파이 브라우저에서 무한로딩이 사라질 것입니다!');
+        console.log('이제 파이 브라우저에서 도메인 인증 오류가 사라질 것입니다!');
         
     } catch (e) {
         console.error('❌ 실패 이유:');

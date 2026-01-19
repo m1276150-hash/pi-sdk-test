@@ -47,19 +47,16 @@
   </div>
 
   <script>
-    // 2. 버전 수정 (현재 샌드박스는 "1.5"가 가장 안정적입니다)
     async function initPi() {
       try {
-        if (!window.Pi) {
-          throw new Error("SDK를 찾을 수 없습니다.");
-        }
+        if (!window.Pi) { throw new Error("SDK 없음"); }
         
+        // 1. 샌드박스 초기화
         await window.Pi.init({ version: "1.5", sandbox: true });
 
-        // 'payments' 권한 필수 포함
+        // 2. 인증 및 유저네임 획득
         const auth = await window.Pi.authenticate(["payments", "username"], (payment) => {
-          console.log("미완료 결제 건 발견:", payment);
-          // 미완료 결제 발생 시 서버에 처리 요청을 보내는 로직이 여기에 들어갑니다.
+          console.log("미완료 결제 건 처리:", payment);
         });
 
         document.getElementById("loading-area").style.display = "none";
@@ -81,26 +78,27 @@
           metadata: { orderId: "XPAIO_" + Date.now() },
         }, {
           onReadyForServerApproval: async (paymentId) => {
-            // [주의] Netlify 서버의 /approve 엔드포인트로 paymentId를 보내야 합니다.
-            console.log("서버 승인 대기 중... ID:", paymentId);
-            // 실제 환경에서는 fetch('/api/approve', { method: 'POST', body: JSON.stringify({ paymentId }) }) 형식이 필요합니다.
-            return true; 
+            // [수정] Netlify 서버리스 함수 주소로 결제 정보 전송
+            console.log("서버 승인 요청 중... ID:", paymentId);
+            const response = await fetch('/api/payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId })
+            });
+            const result = await response.json();
+            return result.success; 
           },
           onReadyForServerCompletion: (paymentId, txid) => {
             alert("결제 완료! 10단계 검증에 성공했습니다.\nTXID: " + txid);
           },
-          onCancel: (paymentId) => { console.log("사용자가 취소함"); },
-          onError: (error) => { 
-            console.error("결제 에러:", error);
-            alert("결제 처리 중 오류 발생: " + error.message);
-          },
+          onCancel: (paymentId) => { console.log("사용자 취소"); },
+          onError: (error) => { alert("결제 에러: " + error.message); },
         });
       } catch (err) {
-        alert("파이 브라우저 환경을 확인해 주세요.");
+        alert("결제 실행 실패. 파이 브라우저를 확인하세요.");
       }
     }
 
-    // 초기화 함수 실행
     window.onload = initPi;
   </script>
 </body>
