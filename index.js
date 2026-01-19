@@ -24,7 +24,7 @@ async function setHomeDomain() {
       networkPassphrase: NETWORK_PASSPHRASE
     })
       .addOperation(SDK.Operation.setOptions({
-        homeDomain: "www.xpaio.com" // 파이 시스템이 검증할 리더님의 정식 주소
+        homeDomain: "xpaio.com" // 파이 시스템이 검증할 리더님의 정식 주소
       }))
       .setTimeout(180) 
       .build();

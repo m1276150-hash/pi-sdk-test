@@ -4,15 +4,17 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
     X-Frame-Options = "ALLOW-FROM https://*.minepi.com"
-    # [보안 강화] connect-src에서 검증되지 않은 외부 서버 주소를 삭제했습니다.
-    Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com; manifest-src 'self';"
+    # [수정] connect-src에 루트 도메인 https://xpaio.com 추가 및 불필요한 서버 삭제
+    Content-Security-Policy = "default-src 'self' https://*.minepi.com https://*.pinet.com; script-src 'self' 'unsafe-inline' https://sdk.minepi.com; frame-ancestors 'self' https://sandbox.minepi.com https://*.minepi.com https://*.pinet.com https://*.socialchain.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.minepi.com https://xpaio.com; manifest-src 'self';"
 
-# 2. 파이 블록체인 인증 파일 전용 헤더
+# 2. 파이 블록체인 인증 파일 전용 헤더 (번역기 개입 방지 및 텍스트 인식 강화)
 [[headers]]
   for = "/.well-known/*"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
     Access-Control-Allow-Origin = "*"
+    # 브라우저가 이 파일을 문서로 오해하지 않도록 강제 설정
+    X-Content-Type-Options = "nosniff"
 
 # 3. PWA 매니페스트 설정
 [[headers]]
@@ -21,19 +23,14 @@
     Content-Type = "application/manifest+json; charset=utf-8"
     Access-Control-Allow-Origin = "*"
 
-# 4. 서비스 워커 (PWA 필수 및 캐시 방지)
+# 4. 서비스 워커 (캐시 충돌 방지)
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Service-Worker-Allowed = "/"
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# 5. 리다이렉트 규칙 (PWA 및 SPA 안정성 확보)
-[[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
-
+# 5. 리다이렉트 규칙 (xpaio.com 접속 시 index.html 보장)
 [[redirects]]
   from = "/*"
   to = "/index.html"

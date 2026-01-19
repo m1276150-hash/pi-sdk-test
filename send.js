@@ -17,7 +17,7 @@ async function setHomeDomain() {
     const ledgers = await server.ledgers().order("desc").limit(1).call();
     const currentFee = ledgers.records[0].base_fee_in_stroops;
 
-    console.log("2. 홈 도메인(www.xpaio.com) 설정 트랜잭션 빌드 중...");
+    console.log("2. 홈 도메인(xpaio.com) 설정 트랜잭션 빌드 중...");
     const tx = new TransactionBuilder(account, {
       fee: currentFee, 
       // 💡 중요 수정: 파이 테스트넷 공식 식별자로 일치
@@ -26,7 +26,7 @@ async function setHomeDomain() {
       .addOperation(
         Operation.setOptions({
           // ✅ 파이 개발자 포털 9단계에 적힌 주소와 100% 일치
-          homeDomain: "www.xpaio.com" 
+          homeDomain: "xpaio.com" 
         })
       )
       .setTimeout(180) 

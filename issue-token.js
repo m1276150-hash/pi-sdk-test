@@ -25,7 +25,7 @@ async function completeStep10() {
         })
         .addOperation(SDK.Operation.setOptions({ 
             // ✅ 파이 시스템이 검증할 도메인 (www 포함)
-            homeDomain: "www.xpaio.com" 
+            homeDomain: "xpaio.com" 
         }))
         .setTimeout(180) 
         .build();

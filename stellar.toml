@@ -2,7 +2,7 @@
 
 [METADATA]
 ORG_NAME = "XPAIO Project"
-ORG_URL = "https://www.xpaio.com"
+ORG_URL = "https://xpaio.com"
 ORG_DESCRIPTION = "AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계"
 ORG_OFFICIAL_EMAIL = "m1276150@gmail.com"
 
@@ -16,7 +16,7 @@ display_decimals = 7
 name = "XPAIO Token"
 symbol = "XPAIO"
 desc = "AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 핵심 유틸리티 토큰"
-image = "https://www.xpaio.com/logo.png"
+image = "https://xpaio.com/logo.png"
 fixed_number = 50000000
 
 # 파이 네트워크 호라이즌 서버 설정 (테스트넷)

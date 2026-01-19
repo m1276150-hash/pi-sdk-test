@@ -19,7 +19,7 @@ async function setHomeDomain() {
             networkPassphrase: StellarSdk.Networks.TESTNET,
         })
         .addOperation(StellarSdk.Operation.setOptions({
-            homeDomain: 'www.xpaio.com' 
+            homeDomain: 'xpaio.com' 
         }))
         .setTimeout(30)
         .build();
