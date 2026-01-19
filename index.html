@@ -3,20 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>XPAIO - Pi Network Ecosystem</title>
+  <meta name="description" content="AI 혁신과 파이 네트워크의 탈중앙화 철학이 결합된 글로벌 디지털 생태계">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="XPAIO Ecosystem">
+  <meta property="og:description" content="글로벌 디지털 생태계의 새로운 미래를 만들어 갑니다.">
+  <meta property="og:image" content="https://xpaio-token.netlify.app/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="XPAIO Project">
+  <meta name="twitter:image" content="https://xpaio-token.netlify.app/logo.png">
+
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  
   <style>
-    body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    .container { padding: 40px; border-radius: 20px; background-color: #161b22; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; }
+    body { background-color: #0d1117; color: #c9d1d9; font-family: 'Malgun Gothic', sans-serif; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+    .container { padding: 40px; border-radius: 20px; background-color: #161b22; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; transition: all 0.3s ease; }
     h1 { color: #ffffff; font-size: 1.8em; margin-bottom: 10px; }
     .status-badge { background-color: #238636; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; display: inline-block; margin-bottom: 20px; }
     .pay-btn { background-color: #6200ee; color: white; border: none; padding: 18px 40px; border-radius: 12px; font-weight: bold; font-size: 1.2em; cursor: pointer; transition: transform 0.2s, background-color 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3); }
+    .pay-btn:hover { background-color: #7722ff; }
     .pay-btn:active { transform: scale(0.98); }
     .instruction { margin-top: 25px; color: #8b949e; font-size: 0.95em; line-height: 1.6; }
     #username { color: #58a6ff; font-weight: bold; }
     .loading-spinner { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .error { color: #f85149; background: rgba(248, 81, 73, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #f85149; }
+    .error { color: #f85149; background: rgba(248, 81, 73, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #f85149; display: none; }
   </style>
 </head>
 <body>
@@ -30,7 +42,7 @@
     
     <div id="auth-area" style="display: none;">
       <div class="status-badge">✅ 보안 연결됨</div>
-      <p><span id="username"></span> 리더님, 환영합니다!</p>
+      <p><span id="username"></span>  환영합니다!</p>
       
       <button class="pay-btn" onclick="openPiPayment()">테스트 결제 (0.1 Pi)</button>
 
@@ -41,35 +53,42 @@
       </div>
     </div>
 
-    <div id="error-area" class="error" style="display: none;">
-      연결 오류: 파이 브라우저에서 접속하시거나<br />지갑 인증 상태를 확인해 주세요.
+    <div id="error-area" class="error">
+      <p><strong>연결 오류 발생</strong></p>
+      파이 브라우저에서 접속하시거나<br />지갑 인증 상태를 확인해 주세요.
     </div>
   </div>
 
   <script>
+    // Pi SDK 초기화 및 인증
     async function initPi() {
       try {
-        if (!window.Pi) { throw new Error("SDK 없음"); }
+        if (!window.Pi) { throw new Error("SDK를 로드할 수 없습니다."); }
         
-        // 1. 샌드박스 초기화
+        // 가이드라인에 따른 초기화 (샌드박스 모드 활성)
         await window.Pi.init({ version: "1.5", sandbox: true });
 
-        // 2. 인증 및 유저네임 획득
-        const auth = await window.Pi.authenticate(["payments", "username"], (payment) => {
-          console.log("미완료 결제 건 처리:", payment);
+        // 인증 및 미완료 결제 건 확인 (가이드라인 준수)
+        const scopes = ["payments", "username"];
+        const auth = await window.Pi.authenticate(scopes, (payment) => {
+          console.log("미완료 결제 건 발견:", payment);
+          // 필요 시 서버에 해당 paymentId로 승인 재요청 로직 추가 가능
         });
 
+        // UI 업데이트
         document.getElementById("loading-area").style.display = "none";
+        document.getElementById("error-area").style.display = "none";
         document.getElementById("auth-area").style.display = "block";
         document.getElementById("username").innerText = auth.user.username;
 
       } catch (err) {
-        console.error("인증 실패:", err);
+        console.error("인증 실패 상세:", err);
         document.getElementById("loading-area").style.display = "none";
         document.getElementById("error-area").style.display = "block";
       }
     }
 
+    // 결제 요청 함수
     async function openPiPayment() {
       try {
         const payment = await window.Pi.createPayment({
@@ -77,8 +96,8 @@
           memo: "XPAIO 10단계 최종 테스트",
           metadata: { orderId: "XPAIO_" + Date.now() },
         }, {
+          // 서버 승인 단계 (Netlify Functions 연결)
           onReadyForServerApproval: async (paymentId) => {
-            // [수정] Netlify 서버리스 함수 주소로 결제 정보 전송
             console.log("서버 승인 요청 중... ID:", paymentId);
             const response = await fetch('/api/payment', {
               method: 'POST',
@@ -88,17 +107,23 @@
             const result = await response.json();
             return result.success; 
           },
+          // 결제 완료 단계
           onReadyForServerCompletion: (paymentId, txid) => {
             alert("결제 완료! 10단계 검증에 성공했습니다.\nTXID: " + txid);
           },
-          onCancel: (paymentId) => { console.log("사용자 취소"); },
-          onError: (error) => { alert("결제 에러: " + error.message); },
+          onCancel: (paymentId) => { console.log("사용자가 결제를 취소함. ID:", paymentId); },
+          onError: (error) => { 
+            console.error("결제 처리 중 에러:", error);
+            alert("결제 처리 오류: " + error.message); 
+          },
         });
       } catch (err) {
-        alert("결제 실행 실패. 파이 브라우저를 확인하세요.");
+        console.error("결제 실행 실패:", err);
+        alert("파이 브라우저 환경을 다시 확인해 주세요.");
       }
     }
 
+    // 페이지 로드 시 초기화 실행
     window.onload = initPi;
   </script>
 </body>
